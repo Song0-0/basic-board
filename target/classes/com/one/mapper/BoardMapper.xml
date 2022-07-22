@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.one.mapper.BoardMapper">
+	
+	<select id="getList" resultType="com.one.domain.BoardVO">
+ <![CDATA[ 
+ select * from t_board where bno > 0
+ ]]>
+		<!-- CDATA는 0보다 크다의 부호(>)를 처리하기 위해 쓴것이다. -->
+	</select>
+
+	<sql id="criteria">
+		<trim prefix="(" suffix=") AND " prefixOverrides="OR">
+			<foreach item='type' collection='typeArr'>
+				<trim prefix="OR">
+					<choose>
+						<when test="type == 'T'.toString()">
+							title like '%' || #{keyword} || '%'  <!-- %를 양쪽에 붙여주면 검색하는 단어 외에도 찾아준다?? -->
+						</when>
+						<when test="type == 'C'.toString()">
+							content like '%' || #{keyword} || '%'
+						</when>
+						<when test="type == 'W'.toString()">
+							writer like '%' || #{keyword} || '%'
+						</when>
+					</choose>
+				</trim>
+			</foreach>
+		</trim>
+	</sql>
+
+	<select id="getListWithPaging"
+		resultType="com.one.domain.BoardVO">
+		select bno, title, content, writer, regdate, updatedate
+		from (
+		select
+		/*+ index_desc(t_board SYS_C007013) */
+		rownum rn, bno, title, content,
+		writer, regdate, updatedate
+		from t_board
+		where
+
+		<include refid="criteria">
+		
+		</include>
+		
+		
+		
+		<![CDATA[
+		rownum <= #{pageNum} * #{amount}
+		)
+		where rn > (#{pageNum} -1) * #{amount}
+		]]>
+	</select>
+
+	<insert id="insert">
+		insert into t_board (bno, title, content, writer)
+		values
+		(seq_board.nextval, #{title}, #{content}, #{writer}) <!-- ?를 처리할때는 #{title} 
+			이렇게 처리한다!! -->
+	</insert>
+
+
+	<insert id="insertSelectKey">
+		<selectKey keyProperty="bno" order="BEFORE"
+			resultType="long">
+			select seq_board.nextval from dual
+		</selectKey>
+		insert into t_board(bno, title, content, writer)
+		values(#{bno},
+		#{title}, #{content}, #{writer})
+	</insert>
+
+	<!-- 이 주석들은 insertSelectKey대한 주석이다!! -->
+	<!-- select해서 insert하는 것이다. -->
+	<!-- 서브태그 selectKey라는걸 우리가 만듬 -->
+	<!-- 끝에 세미콜론 넣으면 안돼!!! dual은 더미! -->
+	<!-- 한번읽어오고 주기떄문에 bno가 nextval이 아닌것이다! -->
+
+	<select id="read" resultType="com.one.domain.BoardVO">
+		select * from t_board where bno =
+		#{bno}
+	</select>
+
+	<delete id="delete">
+		delete from t_board where bno = #{bno}
+	</delete>
+
+	<update id="update">
+		update t_board set title=#{title},
+		content=#{content}, writer=#{writer},
+		updatedate = sysdate where bno =
+		#{bno}
+	</update>
+
+	<select id="getTotalCount" resultType="int">
+		select count(*) from t_board 
+		where
+		<include refid="criteria"></include>
+	 <![CDATA[ 
+		bno > 0
+		 ]]>
+	</select>
+
+</mapper>

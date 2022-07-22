@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.one.mapper.ReplyMapper">
+
+	<insert id="insert">
+		insert into t_reply(rno,bno,reply, replyer)
+		values
+		(seq_reply.nextval,#{bno},#{reply}, #{replyer})
+	</insert>
+
+	<select id="read" resultType="com.one.domain.ReplyVO">
+		select * from t_reply where rno =
+		#{rno}
+	</select>
+
+	<delete id="delete">
+		delete from t_reply where rno = #{rno}
+	</delete>
+
+	<update id="update"> <!-- 인터페이스에서도 update로 줬으니까 얘도 update로 아이디명을 준다~ -->
+		update t_reply set reply = #{reply}, updatedate=sysdate where
+		rno=#{rno} <!-- 미리 sql에 이 문구를 시행해보고 잘 되면 세미콜론떼고 가져오기!! -->
+	</update>
+
+	<select id="getListwithPaging"
+		resultType="com.one.domain.ReplyVO">
+		<![CDATA[
+		select rno, bno, reply, replyer, replydate, updatedate
+		from (
+		select /*+INDEX(t_reply idx_reply)*/
+		rownum rn, bno, rno, reply, replyer, replydate, updatedate
+		from t_reply
+		where bno=#{bno} and rno>0 and rownum <= #{cri.pageNum} * #{cri.amount}
+		)
+		where rn>(#{cri.pageNum}-1)*#{cri.amount}
+		]]>
+	</select> <!-- 읽어서 resultType으로 가고 .ReplyVO로 간다. 꼭 끝에 세미콜론때기!!! -->
+
+	<select id="getCountByBno" resultType="int">
+	select count(rno) from t_reply where bno=#{bno}
+	</select>
+
+</mapper>
