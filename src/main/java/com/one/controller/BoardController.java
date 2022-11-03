@@ -20,7 +20,7 @@ import lombok.extern.log4j.Log4j;
 @Controller
 @RequiredArgsConstructor
 @Log4j
-@RequestMapping("/board/*") // get, post 둘 다 가능하도록
+@RequestMapping("/board/*") // /board로 시작하는 모든 처리를 BoardController가 하도록 지정
 public class BoardController {
 	private final BoardService service;
 

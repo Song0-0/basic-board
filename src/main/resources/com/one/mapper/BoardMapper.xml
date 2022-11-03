@@ -12,13 +12,13 @@
 		<!-- CDATA는 0보다 크다의 부호(>)를 처리하기 위해 쓴것이다. -->
 	</select>
 
-	<sql id="criteria">
+	<sql id="criteria"> <!-- id는 Mapper인터페이스에 정의된 메서드명과 동일하게 작성. 페이징처리에 사용하려고 만듬. -->
 		<trim prefix="(" suffix=") AND " prefixOverrides="OR">
 			<foreach item='type' collection='typeArr'>
 				<trim prefix="OR">
 					<choose>
 						<when test="type == 'T'.toString()">
-							title like '%' || #{keyword} || '%'  <!-- %를 양쪽에 붙여주면 검색하는 단어 외에도 찾아준다?? -->
+							title like '%' || #{keyword} || '%'  <!-- #{} : VO의 필드. %를 양쪽에 붙여주면 검색하는 단어 외에도 찾아준다?? -->
 						</when>
 						<when test="type == 'C'.toString()">
 							content like '%' || #{keyword} || '%'
@@ -46,8 +46,6 @@
 		<include refid="criteria">
 		
 		</include>
-		
-		
 		
 		<![CDATA[
 		rownum <= #{pageNum} * #{amount}

@@ -10,7 +10,7 @@ public interface BoardMapper {
 	// 우리는 xml방식을 활용해볼거니까 지금 select 어노테이션은 주석처리한다!! src/main/resources - com - one - mapper 이렇게 각각
 	// 폴더를 생성해주고, BoardMapper.xml에 다 넣을거야.
 	//@Select("select * from t_board where bno > 0") // developersql에서 잘 나오는지 확인을 하고 작업을 하는게 좋음.그리고세미콜론빼고 여기에 붙여넣자
-		public List<BoardVO> getList(); // BoardVO가 배열에 들어있네! DAO역할을 얘가 다 하는 것이야.
+		public List<BoardVO> getList(); // BoardVO가 배열에 들어있네! DAO역할을 얘(BoardMapper인터페이스)가 다 하는 것이야.
 		
 		public List<BoardVO> getListWithPaging(Criteria cri); //
 		
